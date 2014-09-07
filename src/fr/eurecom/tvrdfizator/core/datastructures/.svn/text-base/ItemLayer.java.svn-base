@@ -1,0 +1,53 @@
+package linkedtv.generator.datastructures;
+
+public class ItemLayer {
+	private String MediaFragmentURL = "";
+	private String ud_information= ""; 
+	private String ud_information_name= ""; 
+	private String value="";
+	private long start;
+	private long end;
+	
+	
+	
+	public String getMediaFragmentURL() {
+		return MediaFragmentURL;
+	}
+	public void setMediaFragmentURL(String mediaFragmentURL) {
+		MediaFragmentURL = mediaFragmentURL;
+	}
+	public String getUd_information() {
+		return ud_information;
+	}
+	public void setUd_information(String ud_information) {
+		this.ud_information = ud_information;
+	}
+	public String getUd_information_name() {
+		return ud_information_name;
+	}
+	public void setUd_information_name(String ud_information_name) {
+		this.ud_information_name = ud_information_name;
+	}
+	public String getValue() {
+		return value;
+	}
+	public void setValue(String value) {
+		this.value = value;
+	}
+	
+	public long getStart() {
+		return start;
+	}
+	public void setStart(long start) {
+		this.start = start;
+	}
+	public long getEnd() {
+		return end;
+	}
+	public void setEnd(long end) {
+		this.end = end;
+	}
+
+	
+	
+}

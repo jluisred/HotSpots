@@ -1,0 +1,71 @@
+K 25
+svn:wc:ra_dav:version-url
+V 111
+/linkedtv/!svn/ver/271/projects/metadata-viewer/application/RDF-generator/src/linkedtv/generator/datastructures
+END
+Version.java
+K 25
+svn:wc:ra_dav:version-url
+V 124
+/linkedtv/!svn/ver/137/projects/metadata-viewer/application/RDF-generator/src/linkedtv/generator/datastructures/Version.java
+END
+NERDEntity.java
+K 25
+svn:wc:ra_dav:version-url
+V 127
+/linkedtv/!svn/ver/271/projects/metadata-viewer/application/RDF-generator/src/linkedtv/generator/datastructures/NERDEntity.java
+END
+Brand.java
+K 25
+svn:wc:ra_dav:version-url
+V 122
+/linkedtv/!svn/ver/137/projects/metadata-viewer/application/RDF-generator/src/linkedtv/generator/datastructures/Brand.java
+END
+VideoMetaData.java
+K 25
+svn:wc:ra_dav:version-url
+V 130
+/linkedtv/!svn/ver/137/projects/metadata-viewer/application/RDF-generator/src/linkedtv/generator/datastructures/VideoMetaData.java
+END
+Episode.java
+K 25
+svn:wc:ra_dav:version-url
+V 124
+/linkedtv/!svn/ver/137/projects/metadata-viewer/application/RDF-generator/src/linkedtv/generator/datastructures/Episode.java
+END
+Speaker.java
+K 25
+svn:wc:ra_dav:version-url
+V 124
+/linkedtv/!svn/ver/137/projects/metadata-viewer/application/RDF-generator/src/linkedtv/generator/datastructures/Speaker.java
+END
+ItemLayer.java
+K 25
+svn:wc:ra_dav:version-url
+V 126
+/linkedtv/!svn/ver/271/projects/metadata-viewer/application/RDF-generator/src/linkedtv/generator/datastructures/ItemLayer.java
+END
+Pair.java
+K 25
+svn:wc:ra_dav:version-url
+V 121
+/linkedtv/!svn/ver/137/projects/metadata-viewer/application/RDF-generator/src/linkedtv/generator/datastructures/Pair.java
+END
+Subtitle.java
+K 25
+svn:wc:ra_dav:version-url
+V 125
+/linkedtv/!svn/ver/271/projects/metadata-viewer/application/RDF-generator/src/linkedtv/generator/datastructures/Subtitle.java
+END
+Layer.java
+K 25
+svn:wc:ra_dav:version-url
+V 122
+/linkedtv/!svn/ver/137/projects/metadata-viewer/application/RDF-generator/src/linkedtv/generator/datastructures/Layer.java
+END
+Material.java
+K 25
+svn:wc:ra_dav:version-url
+V 125
+/linkedtv/!svn/ver/137/projects/metadata-viewer/application/RDF-generator/src/linkedtv/generator/datastructures/Material.java
+END

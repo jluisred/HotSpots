@@ -1,0 +1,89 @@
+package linkedtv.generator.datastructures;
+
+public class NERDEntity {
+
+	private int idExtraction;
+	private String entity;
+	private long startChar;
+	private long endChar;
+	private String type;
+	private String nerdType;
+	private float confidence;
+	private float relevance;
+	private String source;
+	private float startNPT;
+	private float endNPT;
+	
+	
+	
+	public int getIdExtraction() {
+		return idExtraction;
+	}
+	public void setIdExtraction(int idExtraction) {
+		this.idExtraction = idExtraction;
+	}
+	public String getEntity() {
+		return entity;
+	}
+	public void setEntity(String entity) {
+		this.entity = entity;
+	}
+	public long getStartChar() {
+		return startChar;
+	}
+	public void setStartChar(long startChar) {
+		this.startChar = startChar;
+	}
+	public long getEndChar() {
+		return endChar;
+	}
+	public void setEndChar(long endChar) {
+		this.endChar = endChar;
+	}
+	public String getType() {
+		return type;
+	}
+	public void setType(String type) {
+		this.type = type;
+	}
+	public String getNerdType() {
+		return nerdType;
+	}
+	public void setNerdType(String nerdType) {
+		this.nerdType = nerdType;
+	}
+	public float getConfidence() {
+		return confidence;
+	}
+	public void setConfidence(float confidence) {
+		this.confidence = confidence;
+	}
+	public float getRelevance() {
+		return relevance;
+	}
+	public void setRelevance(float relevance) {
+		this.relevance = relevance;
+	}
+	public String getSource() {
+		return source;
+	}
+	public void setSource(String source) {
+		this.source = source;
+	}
+	public float getStartNPT() {
+		return startNPT;
+	}
+	public void setStartNPT(float startNPT) {
+		this.startNPT = startNPT;
+	}
+	public float getEndNPT() {
+		return endNPT;
+	}
+	public void setEndNPT(float endNPT) {
+		this.endNPT = endNPT;
+	}
+
+	
+	
+	
+}

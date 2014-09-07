@@ -1,0 +1,32 @@
+package linkedtv.generator.datastructures;
+
+public class Subtitle {
+	private long startTmp;
+	private long endTmp;
+	private String text;
+	
+	
+	
+	
+	public long getStartTmp() {
+		return startTmp;
+	}
+	public void setStartTmp(long startTmp) {
+		this.startTmp = startTmp;
+	}
+	public long getEndTmp() {
+		return endTmp;
+	}
+	public void setEndTmp(long endTmp) {
+		this.endTmp = endTmp;
+	}
+	public String getText() {
+		return text;
+	}
+	public void setText(String text) {
+		this.text = text;
+	}
+	
+	
+	
+}

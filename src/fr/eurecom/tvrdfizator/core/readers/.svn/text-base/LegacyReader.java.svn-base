@@ -1,0 +1,324 @@
+package linkedtv.generator.readers;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
+
+import bbc.rd.tvanytime.ContentReference;
+import bbc.rd.tvanytime.RelatedMaterial;
+import bbc.rd.tvanytime.Synopsis;
+import bbc.rd.tvanytime.TVAnytimeException;
+import bbc.rd.tvanytime.programInformation.ProgramInformation;
+import bbc.rd.tvanytime.programInformation.ProgramInformationTable;
+import bbc.rd.tvanytime.programLocation.ProgramLocationTable;
+import bbc.rd.tvanytime.programLocation.Schedule;
+import bbc.rd.tvanytime.search.SearchInterfaceNotSupportedException;
+import bbc.rd.tvanytime.xml.NonFatalXMLException;
+import bbc.rd.tvanytime.xml.SAXXMLParser;
+
+import linkedtv.generator.datastructures.Brand;
+import linkedtv.generator.datastructures.Episode;
+import linkedtv.generator.datastructures.Material;
+import linkedtv.generator.datastructures.Version;
+import linkedtv.generator.datastructures.VideoMetaData;
+
+public class LegacyReader{
+	private String file;
+	private VideoMetaData mdata; 
+	
+	public LegacyReader(String f, VideoMetaData md){
+		file = f;
+		mdata = md;
+	}
+	
+	public void read(){
+		parseXML(file);
+		
+	}
+	
+	public void parseXML(String filename) {
+	    try {
+	      // Create parser
+	      SAXXMLParser parser = new SAXXMLParser();
+	      // Configure the parser to parse the standard profile (ie. everything).
+	      ((SAXXMLParser)parser).setParseProfile(SAXXMLParser.STANDARD);
+	      
+
+	      
+	      try {
+	        // Do the parsing...
+
+	        parser.parse(new File(filename));
+	        
+
+			   //parser.getProgramInformationTable().getProgramInformation(0).getBasicDescription().getRelatedMaterial(0).getHowRelated()
+	      } catch (NonFatalXMLException nfxe) {
+	        // Handle non-fatal XML exceptions
+	        // Contain any invalid TVAnytime data values from XML source. 
+	        // These are all collated by the parser and thrown at the end to avoid
+	        // having to abort the parsing.
+	        nfxe.printStackTrace();
+	      }
+	      // Print out the contents of the parsed ProgramInformationTable...
+	      System.out.println(parser.getProgramInformationTable());
+	      
+	      //Read every available Program Information 
+	      for (int i = 0; i < parser.getProgramInformationTable().getNumProgramInformations();i++){
+	    	  readProgramInformation(parser.getProgramLocationTable(), parser.getProgramInformationTable(), parser.getProgramInformationTable().getProgramInformation(i));
+	      }
+	      
+	      //Read every Shedule at ProgramLocationTable 
+
+	      
+
+
+	    }
+	    catch (TVAnytimeException tvae) {
+	      // Handle any other TVAnytime-specific exceptions that may be generated.
+	      // E.g. if the XML parser cannot be initialised.
+	      tvae.printStackTrace();      
+	      
+	    }
+	    catch (IOException ioe) {
+	      // Handle IOExceptions: things like missing file
+	      ioe.printStackTrace();
+	    }
+
+
+	  }
+	
+
+	public void readProgramInformation (ProgramLocationTable l, ProgramInformationTable t, ProgramInformation p) throws SearchInterfaceNotSupportedException{
+		//Detect if it is a Brand or an Episode
+		boolean isEpisode = false;
+		int i = 0;
+		ContentReference member;
+		
+		while (i <  p.getNumMemberOfs() && !isEpisode){
+			member = p.getMemberOf(i);
+
+			if (!t.getProgramInformation(member).isEmpty())
+				isEpisode = true;
+			i++;
+		}
+		
+		if (isEpisode) createEpisode(l, p);
+		else createBrand(t, p);
+	}
+	
+	public void createBrand (ProgramInformationTable t, ProgramInformation p){
+		System.out.println("Creating a new Brand: " + p.getProgramID());
+		
+		
+		Brand b = new Brand();
+		
+		//Title
+		b.setTitle(p.getBasicDescription().getTitle(0).getText());
+		//Id
+		b.setId(p.getProgramID().getCRID());
+		//Episode
+		for (int i = 0; i < t.getNumProgramInformations(); i++){
+			int j = 0;
+			boolean isEpisode = false;
+			while (j <p.getNumMemberOfs() && !isEpisode){
+				if (t.getProgramInformation(i).getMemberOf(j).getCRID().equals(b.getId())) isEpisode = true;
+				j++;
+			}
+			
+			if (isEpisode) b.add_episode(t.getProgramInformation(i).getProgramID().getCRID());
+		}
+		
+		//Members
+		for (int i = 0; i < p.getNumMemberOfs(); i++){
+			b.add_memberOf(p.getMemberOf(i).getCRID());
+		}
+		b.print();
+		mdata.setBrand(b);
+	}
+	
+	public void createEpisode (ProgramLocationTable l, ProgramInformation p){
+		System.out.println("Creating a new Episode: " + p.getProgramID());
+		
+		Episode e = new Episode();
+		
+		//Id
+		e.setId(p.getProgramID().getCRID());
+		//Title
+		e.setTitle(p.getBasicDescription().getTitle(0).getText());
+		
+		//synopsis
+		for (int i = 0; i < p.getBasicDescription().getNumSynopses(); i++){
+			Synopsis syn = p.getBasicDescription().getSynopsis(i);
+			if (syn.getLength() == Synopsis.SHORT) e.setShortSynopsis(syn.getText());
+			if (syn.getLength() == Synopsis.LONG) e.setLongSynopsis(syn.getText());
+			if (syn.getLength() == Synopsis.MEDIUM)  e.setMediumSynopsis(syn.getText());
+			if (syn.getLength() == Synopsis.UNDEFINED ) e.setShortSynopsis(syn.getText());
+		}
+		
+		//keywords
+		for (int i = 0; i < p.getBasicDescription().getNumKeywords(); i++){
+			e.add_keyword(p.getBasicDescription().getKeyword(i).getKeyword());
+		}
+		
+		//Broadcaster
+		if (p.getBasicDescription().getCreditsList().getNumCreditsItems() > 0){
+			if (p.getBasicDescription().getCreditsList().getCreditsItem(0).getRole().equals("urn:ard:tva:metadata:cs:ARDRoleCS:2007:17.1")){
+				if (p.getBasicDescription().getCreditsList().getCreditsItem(0).getNumOrganizationNames() > 0 ){
+					e.setBroadcaster(p.getBasicDescription().getCreditsList().getCreditsItem(0).getOrganizationName(0).getOrganizationName());
+				}
+			}
+		}
+		
+		//Related material
+		for (int i = 0; i < p.getBasicDescription().getNumRelatedMaterials(); i ++){
+			Material rm = createRelatedMaterial(p.getBasicDescription().getRelatedMaterial(i));
+			e.addMaterial(rm);
+		}
+		
+		//Members
+		for (int i = 0; i < p.getNumMemberOfs(); i++){
+			e.add_memberOf(p.getMemberOf(i).getCRID());
+		}
+				
+		//Versions
+		createVersions(l, p, e);
+		
+		
+		System.out.println("*******************************************");
+		for (int i = 0; i < e.getVersions().size(); i ++){
+			e.getVersions().elementAt(i).print();	
+		}
+		System.out.println("*******************************************");
+
+		
+		mdata.setEpisode(e);
+
+	}
+	
+	private Material createRelatedMaterial(RelatedMaterial relatedMaterial) {
+		Material rm = new Material();
+		rm.setHowRelated(relatedMaterial.getHowRelatedHREF());
+		rm.setMediaUri(relatedMaterial.getMediaLocator().getMediaURI().getURI());
+		return rm;
+	}
+
+	public void createVersions (ProgramLocationTable l, ProgramInformation p, Episode e){
+		for (int i = 0; i < l.getNumSchedules(); i++){
+			Version v = readSchedule(l.getSchedule(i));
+			v.setProgram(e.getId());
+			e.addVersion(v);
+		}
+		
+		try {
+			readOnDemandPrograms(e);
+		} catch (ParserConfigurationException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (SAXException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+	}
+
+
+
+	private Version readSchedule(Schedule schedule) {
+		Version	v = new Version();
+		
+		v.setServiceID(schedule.getServiceID());
+		if (schedule.getNumScheduleEvents()>0){
+			
+			v.setStartTime(schedule.getScheduleEvent(0).getPublishedStartTime());
+			
+			
+			v.setService(schedule.getScheduleEvent(0).getCRID().getCRID());
+		}
+		
+		return v;
+	}
+	
+	
+	//Not possible to read this with TVAnytime Library.
+	private void readOnDemandPrograms(Episode e) throws ParserConfigurationException, SAXException, IOException {
+		Version	v;
+
+		File fXmlFile = new File(file);
+		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+		DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+		Document doc = dBuilder.parse(fXmlFile);
+		doc.getDocumentElement().normalize();
+ 
+		//System.out.println("Root element :" + doc.getDocumentElement().getNodeName());
+		NodeList nList = doc.getElementsByTagName("tva:OnDemandProgram");
+ 
+		for (int temp = 0; temp < nList.getLength(); temp++) {
+ 
+		   Node nNode = nList.item(temp);
+		   v= new Version();
+		   if (nNode.getNodeType() == Node.ELEMENT_NODE) {
+ 
+		      Element eElement = (Element) nNode;
+		      v.setProgram(getAttrValue("tva:Program","crid", eElement));
+		      v.setService(getTagValue("tva:ProgramURL", eElement));
+		      
+		      try {
+				  DateFormat formatter ; 
+				  formatter = new SimpleDateFormat("yyyy-MM-d'T'hh:mm:ss");
+				  
+			      String StartTime = getTagValue("tva:StartOfAvailability", eElement);
+				  Date dateStartTime;
+				  dateStartTime = (Date)formatter.parse(StartTime);
+				  v.setStartTime(dateStartTime);
+	
+			      String StopTime = getTagValue("tva:EndOfAvailability", eElement);
+				  Date dateStopTime = (Date)formatter.parse(StopTime);
+			      v.setEndTime(dateStartTime);
+				} catch (ParseException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+			  }
+			  eElement = (Element) eElement.getElementsByTagName("tva:InstanceDescription").item(0);
+			  eElement = (Element) eElement.getElementsByTagName("tva:AVAttributes").item(0);
+
+			  v.setFormat(getAttrValue("tva:FileFormat", "href", eElement));
+
+		   }
+		   
+		   e.addVersion(v);
+		}
+		
+	}
+	
+	private static String getTagValue(String sTag, Element eElement) {
+		NodeList nlList = eElement.getElementsByTagName(sTag).item(0).getChildNodes();
+	 
+	        Node nValue = (Node) nlList.item(0);
+	 
+		return nValue.getNodeValue();
+	  }
+	
+	private static String getAttrValue(String sTag,String attr, Element eElement) {
+		Node nValue = eElement.getElementsByTagName(sTag).item(0).getAttributes().getNamedItem(attr);
+	 
+	   
+	 
+		return nValue.getNodeValue();
+	  }
+}
